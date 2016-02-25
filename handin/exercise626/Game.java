@@ -1,3 +1,4 @@
+import java.util.Stack;
 /**
  *  This class is the main class of the "World of Zuul" application. 
  *  "World of Zuul" is a very simple, text based adventure game.  Users 
@@ -19,7 +20,12 @@ public class Game
 {
     private Parser parser;
     private Room currentRoom;
-        
+    
+    // Voor opdracht 6.23
+    private Room lastRoom;
+    
+    // Voor opdracht 6.26
+    private Stack<Room> lastRoomStack;
     /**
      * Create the game and initialise its internal map.
      */
@@ -27,6 +33,7 @@ public class Game
     {
         createRooms();
         parser = new Parser();
+        this.lastRoomStack = new Stack<Room>();
     }
 
     /**
@@ -117,10 +124,34 @@ public class Game
             printHelp();
         }
         else if (commandWord.equals("go")) {
+            // Voordat we naar een andere kamer gaan, gooi de currentRoom object in onze Stack
+            this.lastRoomStack.push(this.currentRoom);
             goRoom(command);
         }
         else if (commandWord.equals("quit")) {
             wantToQuit = quit(command);
+        }
+        else if (commandWord.equals("back")) {
+            // Ik ben ervan bewust dat dit een bad practice is, aangezien ik een boel code gecopy paste heb uit goRoom,
+            // maar dit komt omdat ik de project exercise heb gepakt met de bad practices erin
+            
+            // Pak de laatste Room object van onze Stack 
+            this.currentRoom = this.lastRoomStack.pop();
+            System.out.println("You are " + currentRoom.getDescription());
+            System.out.print("Exits: ");
+            if(currentRoom.northExit != null) {
+                System.out.print("north ");
+            }
+            if(currentRoom.eastExit != null) {
+                System.out.print("east ");
+            }
+            if(currentRoom.southExit != null) {
+                System.out.print("south ");
+            }
+            if(currentRoom.westExit != null) {
+                System.out.print("west ");
+            }
+            System.out.println();
         }
 
         return wantToQuit;
@@ -139,7 +170,7 @@ public class Game
         System.out.println("around at the university.");
         System.out.println();
         System.out.println("Your command words are:");
-        System.out.println("   go quit help");
+        System.out.println("   go quit help back");
     }
 
     /** 
